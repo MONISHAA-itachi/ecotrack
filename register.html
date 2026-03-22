@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoTrack — Who are you?</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-calc">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌿 EcoTrack</a>
+    <span class="nav-step">Step 1 of 2 — Your details</span>
+  </nav>
+
+  <main class="calc-main" style="max-width:560px;">
+    <div class="calc-header">
+      <h1>Tell us about yourself</h1>
+      <p>Fields marked <span class="req">*</span> are required.</p>
+    </div>
+
+    <form id="registerForm" class="trip-form" novalidate>
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">01</span>
+          <span>Tourist details</span>
+        </div>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+
+          <div class="form-group span2">
+            <label for="userName">Full name <span class="req">*</span></label>
+            <input type="text" id="userName" name="userName" placeholder="e.g. Priya Sharma"/>
+            <span class="field-error" id="err-userName">Please enter your full name.</span>
+          </div>
+
+          <div class="form-group span2">
+            <label for="userEmail">Email address <span class="req">*</span></label>
+            <input type="email" id="userEmail" name="userEmail" placeholder="e.g. priya@example.com"/>
+            <span class="field-error" id="err-userEmail">Please enter a valid email address.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="userAge">Age group <span class="req">*</span></label>
+            <select id="userAge" name="userAge">
+              <option value="">— Select —</option>
+              <option value="Under 18">Under 18</option>
+              <option value="18-24">18–24</option>
+              <option value="25-34">25–34</option>
+              <option value="35-50">35–50</option>
+              <option value="50+">50+</option>
+            </select>
+            <span class="field-error" id="err-userAge">Please select your age group.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="userCountry">Home country <span class="req">*</span></label>
+            <input type="text" id="userCountry" name="userCountry" placeholder="e.g. India"/>
+            <span class="field-error" id="err-userCountry">Please enter your home country.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="userGender">Gender (optional)</label>
+            <select id="userGender" name="userGender">
+              <option value="Prefer not to say">Prefer not to say</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Non-binary">Non-binary</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="userTripsPerYear">Trips per year (optional)</label>
+            <select id="userTripsPerYear" name="userTripsPerYear">
+              <option value="1">1 trip</option>
+              <option value="2-3" selected>2–3 trips</option>
+              <option value="4-6">4–6 trips</option>
+              <option value="7+">7+ trips</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="privacy-note">
+        <span>🔒</span>
+        <p>Your data is stored locally in this browser only. It is never sent to any server.</p>
+      </div>
+
+      <div class="form-actions">
+        <a href="index.html" class="btn-secondary">← Back</a>
+        <button type="submit" class="btn-primary">Continue to trip details →</button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="footer">
+    <p>Built for the Green Internship Programme · Powered by IPCC & DEFRA emission data</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pre-fill if returning
+      const saved = localStorage.getItem('ecotrack_user');
+      if (saved) {
+        const d = JSON.parse(saved);
+        Object.entries(d).forEach(([k,v]) => { const el = document.getElementById(k); if (el) el.value = v; });
+      }
+
+      document.getElementById('registerForm').addEventListener('submit', e => {
+        e.preventDefault();
+        if (!validateRegister()) return;
+        const data = {};
+        new FormData(e.target).forEach((v,k) => data[k] = v);
+        localStorage.setItem('ecotrack_user', JSON.stringify(data));
+        window.location.href = 'calculator.html';
+      });
+
+      // Clear error on input
+      ['userName','userEmail','userAge','userCountry'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => clearError(id));
+        document.getElementById(id).addEventListener('change', () => clearError(id));
+      });
+    });
+
+    function validateRegister() {
+      let valid = true;
+
+      const name = document.getElementById('userName').value.trim();
+      if (!name) { showError('userName'); valid = false; } else clearError('userName');
+
+      const email = document.getElementById('userEmail').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk) { showError('userEmail'); valid = false; } else clearError('userEmail');
+
+      const age = document.getElementById('userAge').value;
+      if (!age) { showError('userAge'); valid = false; } else clearError('userAge');
+
+      const country = document.getElementById('userCountry').value.trim();
+      if (!country) { showError('userCountry'); valid = false; } else clearError('userCountry');
+
+      return valid;
+    }
+
+    function showError(id) {
+      document.getElementById(id).classList.add('input-error');
+      document.getElementById('err-' + id).style.display = 'block';
+    }
+    function clearError(id) {
+      document.getElementById(id).classList.remove('input-error');
+      const err = document.getElementById('err-' + id);
+      if (err) err.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

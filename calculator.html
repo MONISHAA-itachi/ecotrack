@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoTrack — Calculator</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-calc">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌿 EcoTrack</a>
+    <span class="nav-step">Step 2 of 2 — Trip details</span>
+  </nav>
+
+  <main class="calc-main">
+    <div class="calc-header">
+      <h1>Tell us about your trip</h1>
+      <p>Fields marked <span class="req">*</span> are required.</p>
+    </div>
+
+    <form id="tripForm" class="trip-form" novalidate>
+
+      <!-- SECTION 1: Trip basics -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">01</span>
+          <span>Trip basics</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group span2">
+            <label for="destination">Destination city / country <span class="req">*</span></label>
+            <input type="text" id="destination" name="destination" placeholder="e.g. Paris, France"/>
+            <span class="field-error" id="err-destination">Please enter your destination.</span>
+          </div>
+          <div class="form-group">
+            <label for="tripDays">Duration (days) <span class="req">*</span></label>
+            <input type="number" id="tripDays" name="tripDays" min="1" max="365" placeholder="e.g. 7"/>
+            <span class="field-error" id="err-tripDays">Please enter the number of days (min 1).</span>
+          </div>
+          <div class="form-group">
+            <label for="travellers">Number of travellers <span class="req">*</span></label>
+            <input type="number" id="travellers" name="travellers" min="1" max="50" placeholder="e.g. 2"/>
+            <span class="field-error" id="err-travellers">Please enter the number of travellers (min 1).</span>
+          </div>
+          <div class="form-group">
+            <label for="tripPurpose">Trip purpose</label>
+            <select id="tripPurpose" name="tripPurpose">
+              <option value="leisure">Leisure / holiday</option>
+              <option value="business">Business</option>
+              <option value="adventure">Adventure / backpacking</option>
+              <option value="family">Family visit</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="departureCity">Departure city</label>
+            <input type="text" id="departureCity" name="departureCity" placeholder="e.g. Chennai, India"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Flights -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">02</span>
+          <span>Flights & transport</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="flightKm">Flight distance — one way (km) <span class="req">*</span></label>
+            <input type="number" id="flightKm" name="flightKm" min="0" placeholder="e.g. 2000 (enter 0 if no flight)"/>
+            <span class="field-error" id="err-flightKm">Please enter a flight distance (enter 0 if no flight).</span>
+          </div>
+          <div class="form-group">
+            <label for="flightClass">Cabin class</label>
+            <select id="flightClass" name="flightClass">
+              <option value="economy">Economy</option>
+              <option value="premium">Premium economy</option>
+              <option value="business">Business class</option>
+              <option value="first">First class</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="localKmPerDay">Local travel per day (km) <span class="req">*</span></label>
+            <input type="number" id="localKmPerDay" name="localKmPerDay" min="0" placeholder="e.g. 20"/>
+            <span class="field-error" id="err-localKmPerDay">Please enter local travel distance (enter 0 if none).</span>
+          </div>
+          <div class="form-group">
+            <label for="localTransport">Local transport type</label>
+            <select id="localTransport" name="localTransport">
+              <option value="public">Public transit / metro</option>
+              <option value="taxi">Taxi / rideshare</option>
+              <option value="rental">Rental car</option>
+              <option value="walk">Walking / cycling</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Accommodation -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">03</span>
+          <span>Accommodation</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="accomType">Accommodation type</label>
+            <select id="accomType" name="accomType">
+              <option value="camping">Camping / eco-lodge</option>
+              <option value="budget">Budget hotel / hostel</option>
+              <option value="midrange" selected>Mid-range hotel</option>
+              <option value="airbnb">Airbnb / apartment</option>
+              <option value="luxury">Luxury hotel / resort</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="roomNights">Room nights <span class="req">*</span></label>
+            <input type="number" id="roomNights" name="roomNights" min="0" placeholder="e.g. 7"/>
+            <span class="field-error" id="err-roomNights">Please enter number of room nights.</span>
+          </div>
+          <div class="form-group">
+            <label for="roomsBooked">Rooms booked</label>
+            <input type="number" id="roomsBooked" name="roomsBooked" min="1" value="1"/>
+          </div>
+          <div class="form-group">
+            <label for="accomCountry">Country of stay</label>
+            <input type="text" id="accomCountry" name="accomCountry" placeholder="e.g. France"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Food -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">04</span>
+          <span>Food & dining</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="diet">Diet type <span class="req">*</span></label>
+            <select id="diet" name="diet">
+              <option value="">— Select —</option>
+              <option value="omnivore">Omnivore (meat daily)</option>
+              <option value="flex">Flexitarian (occasional meat)</option>
+              <option value="vegetarian">Vegetarian</option>
+              <option value="vegan">Vegan</option>
+            </select>
+            <span class="field-error" id="err-diet">Please select your diet type.</span>
+          </div>
+          <div class="form-group">
+            <label for="diningStyle">Dining style</label>
+            <select id="diningStyle" name="diningStyle">
+              <option value="restaurant">Mostly restaurants</option>
+              <option value="mixed">Mix of restaurant & self-catering</option>
+              <option value="selfcater">Mostly self-catering</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="alcoholFreq">Alcohol consumption</label>
+            <select id="alcoholFreq" name="alcoholFreq">
+              <option value="none">None</option>
+              <option value="occasional">Occasional</option>
+              <option value="daily">Daily</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="localFood">Eat local cuisine?</label>
+            <select id="localFood" name="localFood">
+              <option value="yes">Yes, mostly local</option>
+              <option value="mixed">Mix of local & international</option>
+              <option value="no">No, mostly familiar brands</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Activities -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="section-num">05</span>
+          <span>Activities & shopping</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="mainActivity">Main activity type <span class="req">*</span></label>
+            <select id="mainActivity" name="mainActivity">
+              <option value="">— Select —</option>
+              <option value="sightseeing">City sightseeing / museums</option>
+              <option value="beach">Beach / relaxing</option>
+              <option value="nature">Nature walks / hiking</option>
+              <option value="adventure">Adventure sports / off-road</option>
+              <option value="cruise">Day cruises / boat tours</option>
+              <option value="cultural">Cultural events / festivals</option>
+            </select>
+            <span class="field-error" id="err-mainActivity">Please select your main activity.</span>
+          </div>
+          <div class="form-group">
+            <label for="motorisedTours">Motorised tours / day trips</label>
+            <select id="motorisedTours" name="motorisedTours">
+              <option value="none">None</option>
+              <option value="few">1–2 tours</option>
+              <option value="several">3–5 tours</option>
+              <option value="many">6+ tours</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="shopping">Shopping intensity</label>
+            <select id="shopping" name="shopping">
+              <option value="low">Low (souvenirs only)</option>
+              <option value="medium">Medium (regular purchases)</option>
+              <option value="high">High (significant shopping)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="spaSauna">Spa / sauna / heated pool?</label>
+            <select id="spaSauna" name="spaSauna">
+              <option value="no">No</option>
+              <option value="once">Once or twice</option>
+              <option value="frequent">Frequent use</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="register.html" class="btn-secondary">← Back</a>
+        <button type="submit" class="btn-primary">Calculate my footprint →</button>
+      </div>
+
+    </form>
+  </main>
+
+  <footer class="footer">
+    <p>Built for the Green Internship Programme · Powered by IPCC & DEFRA emission data</p>
+  </footer>
+
+  <script src="js/calculator.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Override form submit with validation
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('tripForm').addEventListener('submit', e => {
+        e.preventDefault();
+        if (!validateCalc()) return;
+        const data = {};
+        new FormData(e.target).forEach((v,k) => data[k] = v);
+        localStorage.setItem('ecotrack_trip', JSON.stringify(data));
+        window.location.href = 'results.html';
+      }, true); // capture phase so it fires before main.js
+
+      // Clear errors on input
+      const required = ['destination','tripDays','travellers','flightKm','localKmPerDay','roomNights','diet','mainActivity'];
+      required.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input',  () => clearErr(id));
+          el.addEventListener('change', () => clearErr(id));
+        }
+      });
+    });
+
+    function validateCalc() {
+      let valid = true;
+
+      // Trip basics
+      if (!val('destination'))        { showErr('destination');   valid = false; } else clearErr('destination');
+      const days = parseInt(document.getElementById('tripDays').value);
+      if (!days || days < 1)          { showErr('tripDays');      valid = false; } else clearErr('tripDays');
+      const tr = parseInt(document.getElementById('travellers').value);
+      if (!tr || tr < 1)              { showErr('travellers');    valid = false; } else clearErr('travellers');
+
+      // Flights
+      const fkm = document.getElementById('flightKm').value.trim();
+      if (fkm === '')                 { showErr('flightKm');      valid = false; } else clearErr('flightKm');
+      const lkm = document.getElementById('localKmPerDay').value.trim();
+      if (lkm === '')                 { showErr('localKmPerDay'); valid = false; } else clearErr('localKmPerDay');
+
+      // Accommodation
+      const rn = document.getElementById('roomNights').value.trim();
+      if (rn === '')                  { showErr('roomNights');    valid = false; } else clearErr('roomNights');
+
+      // Food
+      if (!val('diet'))               { showErr('diet');          valid = false; } else clearErr('diet');
+
+      // Activities
+      if (!val('mainActivity'))       { showErr('mainActivity');  valid = false; } else clearErr('mainActivity');
+
+      // Scroll to first error
+      if (!valid) {
+        const first = document.querySelector('.input-error');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      return valid;
+    }
+
+    function val(id) { return document.getElementById(id).value.trim(); }
+    function showErr(id) {
+      document.getElementById(id).classList.add('input-error');
+      const e = document.getElementById('err-' + id);
+      if (e) e.style.display = 'block';
+    }
+    function clearErr(id) {
+      document.getElementById(id).classList.remove('input-error');
+      const e = document.getElementById('err-' + id);
+      if (e) e.style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>

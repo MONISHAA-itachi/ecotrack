@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoTrack — Tourist Carbon Footprint Dashboard</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-landing">
+
+  <nav class="nav">
+    <div class="nav-logo">🌿 EcoTrack</div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <span class="hero-tag">Green Internship Project</span>
+      <h1 class="hero-title">Know your<br/><span class="accent">carbon cost</span><br/>of travel.</h1>
+      <p class="hero-sub">Enter your trip details and get a full breakdown of your environmental impact — with actionable tips to travel greener.</p>
+
+      <!-- ROLE CHOOSER -->
+      <div class="role-chooser">
+        <p class="role-question">Who are you?</p>
+        <div class="role-cards">
+
+          <a href="register.html" class="role-card role-tourist">
+            <div class="role-icon">🧳</div>
+            <strong>I'm a tourist</strong>
+            <span>Calculate my carbon footprint</span>
+          </a>
+
+          <button class="role-card role-admin" onclick="showAdminGate()">
+            <div class="role-icon">🔐</div>
+            <strong>I'm the admin</strong>
+            <span>View submissions database</span>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="globe-ring r1"></div>
+      <div class="globe-ring r2"></div>
+      <div class="globe-ring r3"></div>
+      <div class="globe-core">
+        <span class="globe-icon">✈</span>
+      </div>
+      <div class="float-card fc1"><span class="fc-val">2.4t</span><span class="fc-label">CO₂e saved</span></div>
+      <div class="float-card fc2"><span class="fc-val">Grade A</span><span class="fc-label">eco score</span></div>
+      <div class="float-card fc3"><span class="fc-val">120</span><span class="fc-label">trees to offset</span></div>
+    </div>
+  </section>
+
+  <!-- ADMIN PASSWORD MODAL -->
+  <div id="adminOverlay" style="display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(15,23,42,0.55); align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:20px; padding:2.5rem 2rem;
+      width:100%; max-width:380px; box-shadow:0 16px 48px rgba(0,0,0,.18); text-align:center; margin:1rem;">
+      <div style="font-size:2.5rem; margin-bottom:1rem;">🔐</div>
+      <h2 style="font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:700; margin-bottom:.4rem; color:#0f172a;">Admin login</h2>
+      <p style="font-size:13px; color:#475569; margin-bottom:1.5rem; line-height:1.6;">Enter the admin password to access the submissions database.</p>
+      <input type="password" id="adminPasswordInput" placeholder="Admin password"
+        style="width:100%; padding:11px 14px; border:1px solid #cbd5e1; border-radius:8px;
+        font-size:14px; outline:none; margin-bottom:.75rem; box-sizing:border-box;"
+        onkeydown="if(event.key==='Enter') checkPassword()"/>
+      <button onclick="checkPassword()" style="width:100%; padding:11px; background:#14532d; color:#fff;
+        border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer;
+        font-family:'Syne',sans-serif;">Enter database →</button>
+      <p id="adminError" style="color:#dc2626; font-size:12px; margin-top:.6rem; display:none;">Incorrect password. Try again.</p>
+      <button onclick="closeAdminGate()" style="margin-top:1rem; background:none; border:none;
+        font-size:13px; color:#94a3b8; cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <section class="features">
+    <div class="feat-card">
+      <div class="feat-icon">🛫</div>
+      <h3>Flights & transport</h3>
+      <p>Flight class, distance, local travel — all calculated with IPCC emission factors.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏨</div>
+      <h3>Accommodation</h3>
+      <p>From camping to luxury resorts — we account for energy usage per stay.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🍽️</div>
+      <h3>Food & dining</h3>
+      <p>Your diet and dining choices contribute more than most people realise.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🎯</div>
+      <h3>Activities & shopping</h3>
+      <p>Adventure sports, boat tours, and shopping all have a carbon cost too.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>Built for the Green Internship Programme · Powered by IPCC & DEFRA emission data</p>
+  </footer>
+
+  <script>
+    const ADMIN_PASSWORD = 'ecotrack2024';
+
+    function showAdminGate() {
+      const overlay = document.getElementById('adminOverlay');
+      overlay.style.display = 'flex';
+      setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+    }
+    function closeAdminGate() {
+      document.getElementById('adminOverlay').style.display = 'none';
+      document.getElementById('adminPasswordInput').value = '';
+      document.getElementById('adminError').style.display = 'none';
+    }
+    function checkPassword() {
+      const val = document.getElementById('adminPasswordInput').value;
+      if (val === ADMIN_PASSWORD) {
+        sessionStorage.setItem('ecotrack_admin', '1');
+        window.location.href = 'database.html';
+      } else {
+        document.getElementById('adminError').style.display = 'block';
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminPasswordInput').focus();
+      }
+    }
+    // Close modal on backdrop click
+    document.getElementById('adminOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeAdminGate();
+    });
+  </script>
+
+</body>
+</html>

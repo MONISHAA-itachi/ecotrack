@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoTrack — Submissions Database</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body class="page-results">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌿 EcoTrack</a>
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;">
+      <a href="register.html" class="btn-nav">+ New entry</a>
+      <button class="btn-nav" id="exportExcelBtn" style="cursor:pointer;">⬇ Export to Excel</button>
+      <button class="btn-nav" id="clearDbBtn" style="color:#dc2626;border-color:#fca5a5;background:#fee2e2;cursor:pointer;">🗑 Clear all</button>
+    </div>
+  </nav>
+
+  <main class="results-main">
+
+    <!-- HEADER STATS -->
+    <section class="score-hero" style="padding:2rem 2.5rem;">
+      <div class="score-left">
+        <p class="score-trip-label">Submissions database</p>
+        <h1 class="score-total" id="dbTitle" style="font-size:2rem;">0 entries recorded</h1>
+        <p class="score-compare">All completed entries are stored here. Click <strong>Export to Excel</strong> to download a spreadsheet with 4 sheets — tourist details, trip data, carbon summary, and feedback.</p>
+      </div>
+      <div class="score-right">
+        <div class="metric-row" style="flex-wrap:wrap;gap:.75rem;">
+          <div class="metric-mini"><span id="dbAvgCo2">—</span><small>avg CO₂e (t)</small></div>
+          <div class="metric-mini"><span id="dbTopEmitter">—</span><small>highest emitter</small></div>
+          <div class="metric-mini"><span id="dbGreenStar">—</span><small>lowest emitter</small></div>
+          <div class="metric-mini"><span id="dbTotalCo2">—</span><small>total CO₂e (t)</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY CHARTS -->
+    <section class="charts-row" id="chartsSection" style="display:none;">
+      <div class="chart-card">
+        <h3>CO₂e per user (recent)</h3>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="userBarChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Grade distribution</h3>
+        <div style="position:relative;width:100%;height:280px;">
+          <canvas id="gradePieChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATABASE TABLE -->
+    <section class="tableau-section">
+      <div class="section-header">
+        <h2>All submissions</h2>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="searchInput" placeholder="Search name, email, destination…"
+            class="fb-input" style="width:240px;padding:7px 12px;font-size:13px;"/>
+          <select id="gradeFilter" class="fb-input" style="width:130px;padding:7px 12px;font-size:13px;">
+            <option value="">All grades</option>
+            <option value="A">Grade A</option>
+            <option value="B">Grade B</option>
+            <option value="C">Grade C</option>
+            <option value="D">Grade D</option>
+            <option value="E">Grade E</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No submissions yet</h3>
+        <p>Once users complete the calculator and submit feedback, their full data will appear here.</p>
+        <a href="register.html" class="btn-primary" style="margin-top:1rem;display:inline-block;">Be the first →</a>
+      </div>
+
+      <div class="tableau-wrap" id="tableWrap" style="display:none;">
+        <table class="tableau-table" id="dbTable">
+          <thead>
+            <tr>
+              <th rowspan="2">#</th>
+              <!-- Tourist -->
+              <th colspan="6" style="background:#166534;text-align:center;">Tourist details</th>
+              <!-- Tour -->
+              <th colspan="14" style="background:#1e3a5f;text-align:center;">Tour details</th>
+              <!-- Carbon -->
+              <th colspan="7" style="background:#7c2d12;text-align:center;">Carbon results</th>
+              <!-- Feedback -->
+              <th colspan="5" style="background:#4a1d96;text-align:center;">Feedback</th>
+              <!-- Meta -->
+              <th rowspan="2">Submitted</th>
+            </tr>
+            <tr>
+              <th>Name</th><th>Email</th><th>Age</th><th>Country</th><th>Gender</th><th>Trips/yr</th>
+              <th>Destination</th><th>Departure</th><th>Days</th><th>Travellers</th><th>Purpose</th>
+              <th>Flight km (RT)</th><th>Cabin</th><th>Local km/day</th><th>Transport</th>
+              <th>Accommodation</th><th>Nights</th><th>Diet</th><th>Activity</th><th>Shopping</th>
+              <th>Flight CO₂t</th><th>Transport CO₂t</th><th>Hotel CO₂t</th>
+              <th>Food CO₂t</th><th>Activity CO₂t</th><th>Total (t)</th><th>Grade</th>
+              <th>Rating</th><th>Change habits?</th><th>Surprising?</th><th>Recommend?</th><th>Comment</th>
+            </tr>
+          </thead>
+          <tbody id="dbBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Built for the Green Internship Programme · Powered by IPCC & DEFRA emission data</p>
+  </footer>
+
+  <script src="js/calculator.js"></script>
+  <script src="js/database.js"></script>
+
+  <script>
+    // If not authenticated via landing page, send them back
+    if (sessionStorage.getItem('ecotrack_admin') !== '1') {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

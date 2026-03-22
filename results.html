@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EcoTrack — Your Results</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="page-results">
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">🌿 EcoTrack</a>
+    <a href="index.html" class="btn-nav">← Return to home</a>
+  </nav>
+
+  <main class="results-main">
+
+    <!-- SCORE HERO -->
+    <section class="score-hero">
+      <div class="score-left">
+        <p class="score-trip-label" id="tripLabel">Your trip</p>
+        <h1 class="score-total" id="scoreTotalText">— t CO₂e</h1>
+        <div id="gradeBadge" class="grade-badge">—</div>
+        <p class="score-compare" id="scoreCompare"></p>
+        <a href="calculator.html" class="btn-secondary" style="margin-top:1.5rem;display:inline-block;">← Edit trip details</a>
+      </div>
+      <div class="score-right">
+        <div class="ring-wrap">
+          <svg width="200" height="200" viewBox="0 0 200 200" id="scoreRing">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="18"/>
+            <circle id="ringArc" cx="100" cy="100" r="80" fill="none" stroke="#22c55e"
+              stroke-width="18" stroke-linecap="round"
+              stroke-dasharray="502" stroke-dashoffset="502"
+              transform="rotate(-90 100 100)"/>
+          </svg>
+          <div class="ring-label">
+            <span id="ringVal">0</span>
+            <small>tonnes CO₂e</small>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-mini"><span id="mPerDay">—</span><small>per day</small></div>
+          <div class="metric-mini"><span id="mTrees">—</span><small>trees to offset</small></div>
+          <div class="metric-mini"><span id="mAnnual">—</span><small>% annual budget</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLEAU TRIP DATA SUMMARY -->
+    <section class="tableau-section">
+      <div class="section-header">
+        <h2>Trip data summary</h2>
+        <span class="section-tag">Tableau view</span>
+      </div>
+      <div class="tableau-wrap">
+        <table class="tableau-table" id="tableauTable">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Input field</th>
+              <th>Your value</th>
+              <th>Emission factor</th>
+              <th>CO₂e (tonnes)</th>
+              <th>% of total</th>
+              <th>Benchmark</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableauBody"></tbody>
+          <tfoot>
+            <tr class="tableau-total">
+              <td colspan="4"><strong>Total</strong></td>
+              <td id="tableFootTotal">—</td>
+              <td>100%</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section class="charts-row">
+      <div class="chart-card">
+        <h3>Breakdown by category</h3>
+        <div class="chart-legend" id="donutLegend"></div>
+        <div style="position:relative;width:100%;height:260px;">
+          <canvas id="donutChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>How you compare</h3>
+        <div style="position:relative;width:100%;height:300px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIPS -->
+    <section class="tips-section">
+      <div class="section-header">
+        <h2>Your personalised tips</h2>
+        <span class="section-tag">Actionable advice</span>
+      </div>
+      <div class="tips-grid" id="tipsGrid"></div>
+    </section>
+
+    <!-- FEEDBACK — stars + quick questions only, no name -->
+    <section class="feedback-section">
+      <div class="section-header">
+        <h2>Quick feedback</h2>
+        <span class="section-tag">2 minutes</span>
+      </div>
+
+      <div class="feedback-card" id="feedbackCard">
+
+        <div class="feedback-top">
+
+          <!-- Star rating -->
+          <div class="feedback-col">
+            <label class="fb-label">How useful was this dashboard?</label>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-val="1">★</span>
+              <span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span>
+              <span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+          </div>
+
+          <!-- Would you change habits -->
+          <div class="feedback-col">
+            <label class="fb-label">Would you change your travel habits?</label>
+            <div class="pill-group" id="habitPills">
+              <button type="button" class="pill" data-val="Yes, definitely">Yes, definitely</button>
+              <button type="button" class="pill" data-val="Maybe">Maybe</button>
+              <button type="button" class="pill" data-val="Not really">Not really</button>
+            </div>
+          </div>
+
+          <!-- Most surprising -->
+          <div class="feedback-col">
+            <label class="fb-label">What surprised you most?</label>
+            <div class="pill-group" id="surprisePills">
+              <button type="button" class="pill" data-val="Flights impact">Flights impact</button>
+              <button type="button" class="pill" data-val="Food footprint">Food footprint</button>
+              <button type="button" class="pill" data-val="Hotel energy">Hotel energy</button>
+              <button type="button" class="pill" data-val="Overall total">Overall total</button>
+            </div>
+          </div>
+
+          <!-- Recommend -->
+          <div class="feedback-col">
+            <label class="fb-label">Would you recommend EcoTrack?</label>
+            <div class="pill-group" id="recommendPills">
+              <button type="button" class="pill" data-val="Yes">Yes</button>
+              <button type="button" class="pill" data-val="Maybe">Maybe</button>
+              <button type="button" class="pill" data-val="No">No</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Optional comment -->
+        <div class="feedback-mid">
+          <label class="fb-label" for="fbComment">Any other comments? (optional)</label>
+          <textarea id="fbComment" rows="3" placeholder="What could we improve? What did you find most valuable?" class="fb-textarea"></textarea>
+        </div>
+
+        <div class="feedback-bottom">
+          <button class="btn-primary" id="submitFeedback">Submit feedback →</button>
+          <p class="fb-note">Your trip and feedback will be recorded. Thank you!</p>
+        </div>
+
+        <div id="feedbackSuccess" class="feedback-success" style="display:none;">
+          <span>🌿</span>
+          <div>
+            <strong>Thank you! Your response has been recorded. 🌿</strong>
+            <p>We appreciate your feedback. Click below to start a new trip calculation.</p>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem;">
+          <a href="index.html" class="btn-secondary">← Return to home page</a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Built for the Green Internship Programme · Powered by IPCC & DEFRA emission data</p>
+  </footer>
+
+  <script src="js/calculator.js"></script>
+  <script src="js/results.js"></script>
+</body>
+</html>
