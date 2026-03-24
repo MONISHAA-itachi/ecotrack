@@ -2,10 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EcoTrack — Calculator</title>
   <link rel="stylesheet" href="css/style.css"/>
@@ -58,10 +54,6 @@
               <option value="family">Family visit</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="departureCity">Departure city</label>
-            <input type="text" id="departureCity" name="departureCity" placeholder="e.g. Chennai, India"/>
-          </div>
         </div>
       </div>
 
@@ -72,11 +64,51 @@
           <span>Flights & transport</span>
         </div>
         <div class="form-grid">
+
           <div class="form-group">
-            <label for="flightKm">Flight distance — one way (km) <span class="req">*</span></label>
-            <input type="number" id="flightKm" name="flightKm" min="0" placeholder="e.g. 2000 (enter 0 if no flight)"/>
-            <span class="field-error" id="err-flightKm">Please enter a flight distance (enter 0 if no flight).</span>
+            <label for="departureCity">Departure city <span class="req">*</span></label>
+            <input type="text" id="departureCity" name="departureCity" placeholder="e.g. Chennai"/>
+            <span class="field-error" id="err-departureCity">Please enter your departure city.</span>
           </div>
+
+          <div class="form-group">
+            <label for="arrivalCity">Destination city <span class="req">*</span></label>
+            <input type="text" id="arrivalCity" name="arrivalCity" placeholder="e.g. Paris"/>
+            <span class="field-error" id="err-arrivalCity">Please enter your destination city.</span>
+          </div>
+
+          <!-- Auto-calculated distance display -->
+          <div class="form-group span2" id="distanceResult" style="display:none;">
+            <div class="distance-card">
+              <div class="distance-info">
+                <span id="distanceFrom">—</span>
+                <span class="distance-arrow">✈</span>
+                <span id="distanceTo">—</span>
+              </div>
+              <div class="distance-val">
+                <strong id="distanceKm">—</strong>
+                <small>km one way (auto-calculated)</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group span2" id="distanceError" style="display:none;">
+            <div class="distance-card distance-card-error">
+              <span id="distanceErrMsg">Could not calculate distance. Please check city names.</span>
+            </div>
+          </div>
+
+          <!-- Hidden field to store calculated km -->
+          <input type="hidden" id="flightKm" name="flightKm" value="0"/>
+
+          <div class="form-group">
+            <label for="flightType">Do you have a flight? <span class="req">*</span></label>
+            <select id="flightType" name="flightType">
+              <option value="yes">Yes, I'm flying</option>
+              <option value="no">No flight (road / train trip)</option>
+            </select>
+          </div>
+
           <div class="form-group">
             <label for="flightClass">Cabin class</label>
             <select id="flightClass" name="flightClass">
@@ -86,11 +118,13 @@
               <option value="first">First class</option>
             </select>
           </div>
+
           <div class="form-group">
             <label for="localKmPerDay">Local travel per day (km) <span class="req">*</span></label>
             <input type="number" id="localKmPerDay" name="localKmPerDay" min="0" placeholder="e.g. 20"/>
             <span class="field-error" id="err-localKmPerDay">Please enter local travel distance (enter 0 if none).</span>
           </div>
+
           <div class="form-group">
             <label for="localTransport">Local transport type</label>
             <select id="localTransport" name="localTransport">
@@ -100,6 +134,7 @@
               <option value="walk">Walking / cycling</option>
             </select>
           </div>
+
         </div>
       </div>
 
@@ -128,10 +163,6 @@
           <div class="form-group">
             <label for="roomsBooked">Rooms booked</label>
             <input type="number" id="roomsBooked" name="roomsBooked" min="1" value="1"/>
-          </div>
-          <div class="form-group">
-            <label for="accomCountry">Country of stay</label>
-            <input type="text" id="accomCountry" name="accomCountry" placeholder="e.g. France"/>
           </div>
         </div>
       </div>
@@ -231,7 +262,7 @@
 
       <div class="form-actions">
         <a href="register.html" class="btn-secondary">← Back</a>
-        <button type="submit" class="btn-primary">Calculate my footprint →</button>
+        <button type="submit" class="btn-primary" id="calcSubmitBtn">Calculate my footprint →</button>
       </div>
 
     </form>
@@ -245,20 +276,118 @@
   <script src="js/main.js"></script>
 
   <script>
-    // Override form submit with validation
+    let calculatedKm = 0;
+    let distanceCalculated = false;
+
+    // Auto-calculate distance when both cities are filled
+    const depInput = document.getElementById('departureCity');
+    const arrInput = document.getElementById('arrivalCity');
+    const flightTypeSelect = document.getElementById('flightType');
+
+    function toggleFlightFields() {
+      const flying = flightTypeSelect.value === 'yes';
+      document.getElementById('flightClass').closest('.form-group').style.opacity = flying ? '1' : '0.4';
+      document.getElementById('flightClass').disabled = !flying;
+      if (!flying) {
+        calculatedKm = 0;
+        document.getElementById('flightKm').value = 0;
+        document.getElementById('distanceResult').style.display = 'none';
+        document.getElementById('distanceError').style.display = 'none';
+        distanceCalculated = true;
+      } else {
+        distanceCalculated = false;
+        if (depInput.value.trim() && arrInput.value.trim()) calcDistance();
+      }
+    }
+    flightTypeSelect.addEventListener('change', toggleFlightFields);
+
+    let debounceTimer;
+    function onCityInput() {
+      if (flightTypeSelect.value !== 'yes') return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (depInput.value.trim().length > 2 && arrInput.value.trim().length > 2) {
+          calcDistance();
+        }
+      }, 800);
+    }
+    depInput.addEventListener('input', onCityInput);
+    arrInput.addEventListener('input', onCityInput);
+
+    async function getCoords(city) {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      if (!data.length) throw new Error('City not found: ' + city);
+      return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+
+    async function calcDistance() {
+      const dep = depInput.value.trim();
+      const arr = arrInput.value.trim();
+      if (!dep || !arr) return;
+
+      document.getElementById('distanceResult').style.display = 'none';
+      document.getElementById('distanceError').style.display = 'none';
+      document.getElementById('calcSubmitBtn').textContent = 'Calculating distance...';
+      document.getElementById('calcSubmitBtn').disabled = true;
+
+      try {
+        const [from, to] = await Promise.all([getCoords(dep), getCoords(arr)]);
+        const km = haversineKm(from.lat, from.lon, to.lat, to.lon);
+
+        calculatedKm = km;
+        document.getElementById('flightKm').value = km;
+        document.getElementById('distanceFrom').textContent = from.name;
+        document.getElementById('distanceTo').textContent   = to.name;
+        document.getElementById('distanceKm').textContent   = km.toLocaleString() + ' km';
+        document.getElementById('distanceResult').style.display = 'block';
+        document.getElementById('distanceError').style.display  = 'none';
+        distanceCalculated = true;
+        clearErr('departureCity');
+        clearErr('arrivalCity');
+      } catch(e) {
+        document.getElementById('distanceErrMsg').textContent = 'Could not find one of the cities. Please check spelling.';
+        document.getElementById('distanceError').style.display  = 'block';
+        document.getElementById('distanceResult').style.display = 'none';
+        distanceCalculated = false;
+      }
+
+      document.getElementById('calcSubmitBtn').textContent = 'Calculate my footprint →';
+      document.getElementById('calcSubmitBtn').disabled = false;
+    }
+
+    // Validation
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('tripForm').addEventListener('submit', e => {
+      document.getElementById('tripForm').addEventListener('submit', async e => {
         e.preventDefault();
         if (!validateCalc()) return;
+
+        // If flying and distance not yet calculated, calculate first
+        if (flightTypeSelect.value === 'yes' && !distanceCalculated) {
+          await calcDistance();
+          if (!distanceCalculated) return;
+        }
+
         const data = {};
         new FormData(e.target).forEach((v,k) => data[k] = v);
+        data.flightKm = calculatedKm;
         localStorage.setItem('ecotrack_trip', JSON.stringify(data));
         window.location.href = 'results.html';
-      }, true); // capture phase so it fires before main.js
+      }, true);
 
-      // Clear errors on input
-      const required = ['destination','tripDays','travellers','flightKm','localKmPerDay','roomNights','diet','mainActivity'];
-      required.forEach(id => {
+      const fields = ['destination','tripDays','travellers','departureCity','arrivalCity','localKmPerDay','roomNights','diet','mainActivity'];
+      fields.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
           el.addEventListener('input',  () => clearErr(id));
@@ -269,40 +398,27 @@
 
     function validateCalc() {
       let valid = true;
-
-      // Trip basics
-      if (!val('destination'))        { showErr('destination');   valid = false; } else clearErr('destination');
+      if (!val('destination'))    { showErr('destination');    valid = false; } else clearErr('destination');
       const days = parseInt(document.getElementById('tripDays').value);
-      if (!days || days < 1)          { showErr('tripDays');      valid = false; } else clearErr('tripDays');
+      if (!days || days < 1)      { showErr('tripDays');       valid = false; } else clearErr('tripDays');
       const tr = parseInt(document.getElementById('travellers').value);
-      if (!tr || tr < 1)              { showErr('travellers');    valid = false; } else clearErr('travellers');
-
-      // Flights
-      const fkm = document.getElementById('flightKm').value.trim();
-      if (fkm === '')                 { showErr('flightKm');      valid = false; } else clearErr('flightKm');
+      if (!tr || tr < 1)          { showErr('travellers');     valid = false; } else clearErr('travellers');
+      if (!val('departureCity'))  { showErr('departureCity');  valid = false; } else clearErr('departureCity');
+      if (!val('arrivalCity'))    { showErr('arrivalCity');    valid = false; } else clearErr('arrivalCity');
       const lkm = document.getElementById('localKmPerDay').value.trim();
-      if (lkm === '')                 { showErr('localKmPerDay'); valid = false; } else clearErr('localKmPerDay');
-
-      // Accommodation
+      if (lkm === '')             { showErr('localKmPerDay');  valid = false; } else clearErr('localKmPerDay');
       const rn = document.getElementById('roomNights').value.trim();
-      if (rn === '')                  { showErr('roomNights');    valid = false; } else clearErr('roomNights');
-
-      // Food
-      if (!val('diet'))               { showErr('diet');          valid = false; } else clearErr('diet');
-
-      // Activities
-      if (!val('mainActivity'))       { showErr('mainActivity');  valid = false; } else clearErr('mainActivity');
-
-      // Scroll to first error
+      if (rn === '')              { showErr('roomNights');     valid = false; } else clearErr('roomNights');
+      if (!val('diet'))           { showErr('diet');           valid = false; } else clearErr('diet');
+      if (!val('mainActivity'))   { showErr('mainActivity');   valid = false; } else clearErr('mainActivity');
       if (!valid) {
         const first = document.querySelector('.input-error');
-        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
       }
-
       return valid;
     }
 
-    function val(id) { return document.getElementById(id).value.trim(); }
+    function val(id)     { return document.getElementById(id).value.trim(); }
     function showErr(id) {
       document.getElementById(id).classList.add('input-error');
       const e = document.getElementById('err-' + id);
@@ -314,6 +430,5 @@
       if (e) e.style.display = 'none';
     }
   </script>
-
 </body>
 </html>

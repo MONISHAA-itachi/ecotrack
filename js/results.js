@@ -1,5 +1,7 @@
 /* results.js */
 
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyqcVn2_a96Mt5A014O9LO_jVmB2oyGL0defR6U4FVsxUrrGd4MMSr-lEI7AP5_6H23/exec';
+
 document.addEventListener('DOMContentLoaded', () => {
   const tripRaw  = localStorage.getItem('ecotrack_trip');
   const userRaw  = localStorage.getItem('ecotrack_user');
@@ -16,6 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCharts(result);
   renderTips(tripData, result);
   renderFeedback(tripData, userData, result);
+
+  // Save to Google Sheets as soon as dashboard loads — feedback is optional
+  saveTrip(userData, tripData, result);
+
+  // Clear session so next user starts fresh
+  localStorage.removeItem('ecotrack_trip');
+  localStorage.removeItem('ecotrack_user');
 });
 
 /* ── SCORE HERO ── */
@@ -178,79 +187,114 @@ function renderFeedback(tripData, userData, result) {
     if (!selectedStars) { alert('Please give a star rating.'); return; }
 
     const feedback = {
-      rating:     selectedStars,
-      wouldChange: selectedHabit,
-      mostSurprising: selectedSurprise,
-      wouldRecommend: selectedRecommend,
-      comment:    document.getElementById('fbComment').value.trim(),
+      rating:          selectedStars,
+      wouldChange:     selectedHabit,
+      mostSurprising:  selectedSurprise,
+      wouldRecommend:  selectedRecommend,
+      comment:         document.getElementById('fbComment').value.trim(),
     };
 
-    saveToDatabase(userData, tripData, result, feedback);
+    const btn = document.getElementById('submitFeedback');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
 
-    document.getElementById('feedbackSuccess').style.display = 'flex';
-    document.getElementById('submitFeedback').disabled = true;
-    document.getElementById('submitFeedback').textContent = 'Saved ✓';
+    saveFeedback(userData, feedback);
 
-    // Clear current session data so next user starts fresh
-    localStorage.removeItem('ecotrack_trip');
-    localStorage.removeItem('ecotrack_user');
+    setTimeout(() => {
+      document.getElementById('feedbackSuccess').style.display = 'flex';
+      btn.textContent = 'Saved ✓';
+    }, 800);
   });
 }
 
-/* ── SAVE FULL ENTRY TO DATABASE ── */
-function saveToDatabase(user, trip, result, feedback) {
+
+
+/* ── SAVE TRIP TO GOOGLE SHEETS (on page load) ── */
+function saveTrip(user, trip, result) {
   const entry = {
     // Tourist details
-    userName:       user.userName     || '',
-    userEmail:      user.userEmail    || '',
-    userAge:        user.userAge      || '',
-    userCountry:    user.userCountry  || '',
-    userGender:     user.userGender   || '',
-    userTripsPerYear: user.userTripsPerYear || '',
+    Name:              user.userName         || '',
+    Email:             user.userEmail        || '',
+    Age_Group:         user.userAge          || '',
+    Home_Country:      user.userCountry      || '',
+    Gender:            user.userGender       || '',
+    Trips_Per_Year:    user.userTripsPerYear || '',
 
     // Trip details
-    destination:    trip.destination  || '',
-    departureCity:  trip.departureCity|| '',
-    tripDays:       trip.tripDays     || '',
-    travellers:     trip.travellers   || '',
-    tripPurpose:    trip.tripPurpose  || '',
-    flightKm:       trip.flightKm     || '',
-    flightClass:    trip.flightClass  || '',
-    localKmPerDay:  trip.localKmPerDay|| '',
-    localTransport: trip.localTransport|| '',
-    accomType:      trip.accomType    || '',
-    roomNights:     trip.roomNights   || '',
-    roomsBooked:    trip.roomsBooked  || '',
-    diet:           trip.diet         || '',
-    diningStyle:    trip.diningStyle  || '',
-    alcoholFreq:    trip.alcoholFreq  || '',
-    mainActivity:   trip.mainActivity || '',
-    motorisedTours: trip.motorisedTours|| '',
-    shopping:       trip.shopping     || '',
-    spaSauna:       trip.spaSauna     || '',
+    Destination:       trip.destination      || '',
+    Departure_City:    trip.departureCity    || '',
+    Arrival_City:      trip.arrivalCity      || '',
+    Flight_Km_RT:      trip.flightKm ? parseFloat(trip.flightKm) * 2 : 0,
+    Flight_Type:       trip.flightType       || '',
+    Cabin_Class:       trip.flightClass      || '',
+    Trip_Days:         trip.tripDays         || '',
+    Travellers:        trip.travellers       || '',
+    Trip_Purpose:      trip.tripPurpose      || '',
+    Local_Km_Per_Day:  trip.localKmPerDay    || '',
+    Local_Transport:   trip.localTransport   || '',
+    Accommodation:     trip.accomType        || '',
+    Room_Nights:       trip.roomNights       || '',
+    Rooms_Booked:      trip.roomsBooked      || '',
+    Diet:              trip.diet             || '',
+    Dining_Style:      trip.diningStyle      || '',
+    Alcohol:           trip.alcoholFreq      || '',
+    Main_Activity:     trip.mainActivity     || '',
+    Motorised_Tours:   trip.motorisedTours   || '',
+    Shopping:          trip.shopping         || '',
+    Spa_Sauna:         trip.spaSauna         || '',
 
     // Carbon results
-    flightCO2t:     parseFloat((result.flightKg     / 1000).toFixed(4)),
-    localCO2t:      parseFloat((result.localKg      / 1000).toFixed(4)),
-    hotelCO2t:      parseFloat((result.accomKg      / 1000).toFixed(4)),
-    foodCO2t:       parseFloat((result.foodKg       / 1000).toFixed(4)),
-    activityCO2t:   parseFloat((result.activitiesKg / 1000).toFixed(4)),
-    totalCO2t:      parseFloat(result.totalT.toFixed(4)),
-    grade:          result.grade,
-    treesToOffset:  result.treesToOffset,
+    Flight_CO2t:       parseFloat((result.flightKg     / 1000).toFixed(4)),
+    Transport_CO2t:    parseFloat((result.localKg      / 1000).toFixed(4)),
+    Hotel_CO2t:        parseFloat((result.accomKg      / 1000).toFixed(4)),
+    Food_CO2t:         parseFloat((result.foodKg       / 1000).toFixed(4)),
+    Activity_CO2t:     parseFloat((result.activitiesKg / 1000).toFixed(4)),
+    Total_CO2t:        parseFloat(result.totalT.toFixed(4)),
+    Grade:             result.grade,
+    Trees_To_Offset:   result.treesToOffset,
 
-    // Feedback
-    feedbackRating:     feedback.rating,
-    wouldChangeHabits:  feedback.wouldChange,
-    mostSurprising:     feedback.mostSurprising,
-    wouldRecommend:     feedback.wouldRecommend,
-    feedbackComment:    feedback.comment,
+    // Feedback placeholders (empty until user submits)
+    Rating_Stars:        '',
+    Would_Change_Habits: '',
+    Most_Surprising:     '',
+    Would_Recommend:     '',
+    Comment:             '',
 
-    // Metadata
-    submittedAt: new Date().toLocaleString(),
+    Submitted_At: new Date().toLocaleString(),
   };
 
+  // Save locally as backup
   const all = JSON.parse(localStorage.getItem('ecotrack_submissions') || '[]');
   all.push(entry);
   localStorage.setItem('ecotrack_submissions', JSON.stringify(all));
+
+  // Send to Google Sheets
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  }).catch(err => console.error('Sheet sync failed:', err));
+}
+
+/* ── SAVE FEEDBACK TO GOOGLE SHEETS (optional, on feedback submit) ── */
+function saveFeedback(user, feedback) {
+  const entry = {
+    Name:                user.userName || '',
+    Email:               user.userEmail || '',
+    Feedback_Only:       'true',
+    Rating_Stars:        feedback.rating,
+    Would_Change_Habits: feedback.wouldChange,
+    Most_Surprising:     feedback.mostSurprising,
+    Would_Recommend:     feedback.wouldRecommend,
+    Comment:             feedback.comment,
+    Submitted_At:        new Date().toLocaleString(),
+  };
+
+  fetch(SHEET_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  }).catch(err => console.error('Feedback sync failed:', err));
 }

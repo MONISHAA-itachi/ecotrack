@@ -2,10 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EcoTrack — Submissions Database</title>
   <link rel="stylesheet" href="css/style.css"/>
@@ -78,7 +74,19 @@
         </div>
       </div>
 
-      <div id="emptyState" class="empty-state">
+      <div id="warnBanner" style="display:none;background:#fef3c7;border:1px solid #fde68a;border-radius:12px;padding:.75rem 1.25rem;font-size:13px;color:#92400e;margin-bottom:1rem;"></div>
+
+      <div id="loadingState" style="text-align:center;padding:3rem 2rem;color:#475569;">
+        <div style="font-size:2rem;margin-bottom:.75rem;">⏳</div>
+        <p style="font-size:14px;">Loading submissions from Google Sheets...</p>
+      </div>
+
+      <div id="emptyState" class="empty-state" style="display:none;">
+        <div class="empty-icon">📊</div>
+        <h3>No submissions yet</h3>
+        <p id="emptyMsg">Once users complete the calculator, their data will appear here.</p>
+        <a href="register.html" class="btn-primary" style="margin-top:1rem;display:inline-block;">Be the first →</a>
+      </div>
         <div class="empty-icon">📊</div>
         <h3>No submissions yet</h3>
         <p>Once users complete the calculator and submit feedback, their full data will appear here.</p>

@@ -669,3 +669,48 @@ body {
   .form-group.span2 { grid-column: 1; }
   .feedback-top { grid-template-columns: 1fr; }
 }
+
+/* ── DISTANCE CARD ── */
+.distance-card {
+  background: var(--green-light);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.distance-card-error {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  font-size: 13px;
+}
+.distance-info {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--green-dark);
+}
+.distance-arrow {
+  font-size: 1.1rem;
+}
+.distance-val {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+}
+.distance-val strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+.distance-val small {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
